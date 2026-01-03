@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Recognition - CNN + LSTM</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🎬 Action Recognition</h1>
+            <p class="subtitle">CNN + LSTM Deep Learning Model</p>
+            <p class="dataset-info">Trained on UCF11 Dataset</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="upload-container" id="dropZone">
+                    <div class="upload-icon">📹</div>
+                    <h2>Upload Video</h2>
+                    <p>Drag & drop a video file or click to browse</p>
+                    <input type="file" id="videoInput" accept="video/*" hidden>
+                    <button class="btn btn-primary" id="browseBtn">Browse Files</button>
+                    <p class="file-info">Supported: MP4, AVI, MOV, MPG, MKV, WebM</p>
+                </div>
+
+                <!-- Selected File Info -->
+                <div class="file-preview" id="filePreview" style="display: none;">
+                    <div class="file-details">
+                        <span class="file-icon">🎥</span>
+                        <div class="file-text">
+                            <span class="file-name" id="fileName"></span>
+                            <span class="file-size" id="fileSize"></span>
+                        </div>
+                        <button class="btn btn-remove" id="removeFile">✕</button>
+                    </div>
+                    <video id="videoPreview" controls></video>
+                </div>
+
+                <!-- Predict Button -->
+                <button class="btn btn-predict" id="predictBtn" disabled>
+                    <span class="btn-text">🔍 Predict Action</span>
+                    <span class="btn-loading" style="display: none;">
+                        <span class="spinner"></span> Analyzing...
+                    </span>
+                </button>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>🎯 Prediction Result</h2>
+                
+                <!-- Main Prediction -->
+                <div class="prediction-card">
+                    <div class="prediction-label">Detected Action</div>
+                    <div class="prediction-action" id="predictedAction"></div>
+                    <div class="prediction-confidence">
+                        <span class="confidence-label">Confidence:</span>
+                        <span class="confidence-value" id="confidenceValue"></span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
+                </div>
+
+                <!-- All Predictions -->
+                <div class="all-predictions">
+                    <h3>📊 All Class Probabilities</h3>
+                    <div class="predictions-list" id="predictionsList"></div>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-card">
+                    <span class="error-icon">⚠️</span>
+                    <h3>Error</h3>
+                    <p class="error-message" id="errorMessage"></p>
+                    <button class="btn btn-secondary" id="tryAgainBtn">Try Again</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Info Section -->
+        <section class="info-section">
+            <h2>📚 About This Model</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>🧠 Architecture</h3>
+                    <p><strong>CNN:</strong> MobileNetV2 (ImageNet pretrained)</p>
+                    <p><strong>RNN:</strong> LSTM with 64 units</p>
+                    <p><strong>Input:</strong> 20 frames @ 224×224</p>
+                </div>
+                <div class="info-card">
+                    <h3>🎯 Classes (UCF11)</h3>
+                    <ul class="classes-list" id="classesList">
+                        <li>Basketball</li>
+                        <li>Biking</li>
+                        <li>Diving</li>
+                        <li>Golf Swing</li>
+                        <li>Horse Riding</li>
+                        <li>Soccer Juggling</li>
+                        <li>Swing</li>
+                        <li>Tennis Swing</li>
+                        <li>Trampoline Jumping</li>
+                        <li>Volleyball Spiking</li>
+                        <li>Walking</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3>⚙️ Processing</h3>
+                    <p><strong>Frames:</strong> 20 per video</p>
+                    <p><strong>Resolution:</strong> 224×224 RGB</p>
+                    <p><strong>Normalization:</strong> 0-1 scaling</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>University Assignment - Deep Learning</p>
+            <p>Action Recognition using CNN + LSTM | UCF11 Dataset</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
