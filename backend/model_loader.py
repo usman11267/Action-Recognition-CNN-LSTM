@@ -6,26 +6,50 @@ Handles loading the pre-trained CNN + LSTM model and class labels
 import os
 import json
 import tensorflow as tf
-from tensorflow.keras.models import load_model as keras_load_model
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, LSTM, Dense, Dropout, TimeDistributed
+from tensorflow.keras.applications import MobileNetV2
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(BASE_DIR, 'models', 'ucf11_cnn_lstm_model.h5')
 CLASSES_PATH = os.path.join(BASE_DIR, 'models', 'classes.json')
 
+# Model configuration
+SEQ_LENGTH = 20
+IMG_SIZE = 224
+NUM_CLASSES = 11
+
 # Global variables for caching
 _model = None
 _class_labels = None
 
 
+def build_model():
+    """Rebuild the model architecture"""
+    # CNN backbone
+    cnn = MobileNetV2(
+        weights="imagenet",
+        include_top=False,
+        pooling="avg",
+        input_shape=(IMG_SIZE, IMG_SIZE, 3)
+    )
+    cnn.trainable = False
+    
+    # Full model
+    inputs = Input(shape=(SEQ_LENGTH, IMG_SIZE, IMG_SIZE, 3))
+    x = TimeDistributed(cnn)(inputs)
+    x = LSTM(64)(x)
+    x = Dropout(0.5)(x)
+    outputs = Dense(NUM_CLASSES, activation="softmax")(x)
+    
+    model = Model(inputs, outputs)
+    return model
+
+
 def load_model():
     """
     Load the pre-trained CNN + LSTM model
-    
-    The model architecture:
-    - CNN: MobileNetV2 (pre-trained on ImageNet) for spatial feature extraction
-    - LSTM: 64 units for temporal sequence learning
-    - Output: Softmax layer for 11 UCF11 action classes
     
     Returns:
         tf.keras.Model: Loaded model ready for inference
@@ -46,8 +70,15 @@ def load_model():
     # Suppress TensorFlow warnings
     tf.get_logger().setLevel('ERROR')
     
-    # Load model
-    _model = keras_load_model(MODEL_PATH)
+    try:
+        # Try direct loading first
+        from tensorflow.keras.models import load_model as keras_load_model
+        _model = keras_load_model(MODEL_PATH, compile=False)
+    except Exception as e:
+        print(f"Direct loading failed, rebuilding architecture: {e}")
+        # Rebuild architecture and load weights
+        _model = build_model()
+        _model.load_weights(MODEL_PATH)
     
     print("Model loaded successfully!")
     print(f"Input shape: {_model.input_shape}")
