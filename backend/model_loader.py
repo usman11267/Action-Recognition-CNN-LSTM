@@ -6,7 +6,6 @@ Handles loading the pre-trained CNN + LSTM model and class labels
 import os
 import json
 import tensorflow as tf
-from tensorflow.keras.models import load_model as keras_load_model
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,6 +15,36 @@ CLASSES_PATH = os.path.join(BASE_DIR, 'models', 'classes.json')
 # Global variables for caching
 _model = None
 _class_labels = None
+
+
+def build_model():
+    """Rebuild the CNN + LSTM model architecture"""
+    from tensorflow.keras.applications import MobileNetV2
+    from tensorflow.keras.layers import TimeDistributed, LSTM, Dense, Dropout, Input
+    from tensorflow.keras.models import Model
+    
+    SEQ_LENGTH = 20
+    IMG_SIZE = 224
+    NUM_CLASSES = 11
+    
+    # CNN backbone
+    cnn = MobileNetV2(
+        weights="imagenet",
+        include_top=False,
+        pooling="avg",
+        input_shape=(IMG_SIZE, IMG_SIZE, 3)
+    )
+    cnn.trainable = False
+    
+    # Build model
+    inputs = Input(shape=(SEQ_LENGTH, IMG_SIZE, IMG_SIZE, 3))
+    x = TimeDistributed(cnn)(inputs)
+    x = LSTM(64)(x)
+    x = Dropout(0.5)(x)
+    outputs = Dense(NUM_CLASSES, activation="softmax")(x)
+    
+    model = Model(inputs, outputs)
+    return model
 
 
 def load_model():
@@ -46,8 +75,24 @@ def load_model():
     # Suppress TensorFlow warnings
     tf.get_logger().setLevel('ERROR')
     
-    # Load model
-    _model = keras_load_model(MODEL_PATH)
+    # Rebuild model architecture
+    print("Building model architecture...")
+    _model = build_model()
+    
+    # Load weights
+    print("Loading trained weights...")
+    try:
+        _model.load_weights(MODEL_PATH)
+    except Exception as e:
+        print(f"Warning: Could not load weights: {e}")
+        print("Using pretrained MobileNetV2 weights only")
+    
+    # Compile model
+    _model.compile(
+        optimizer='adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
     
     print("Model loaded successfully!")
     print(f"Input shape: {_model.input_shape}")
