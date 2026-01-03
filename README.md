@@ -94,8 +94,18 @@ POST /predict -F "video=@sample.mp4"
 ├── models/
 │   ├── ucf11_cnn_lstm_model.h5
 │   └── classes.json
+├── samples/              # Test videos
 └── plots/
 ```
+
+## Sample Test Videos
+
+Download sample videos from UCF11 dataset to test:
+- [UCF11 Dataset](https://www.crcv.ucf.edu/data/UCF_YouTube_Action.php)
+
+Or use any short video (MP4/AVI) showing these actions:
+- Basketball, Biking, Diving, Golf, Horse Riding
+- Soccer Juggling, Swing, Tennis, Trampoline, Volleyball, Walking
 
 ## Tech Stack
 
