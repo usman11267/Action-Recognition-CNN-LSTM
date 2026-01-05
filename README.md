@@ -118,6 +118,4 @@ Or use any short video (MP4/AVI) showing these actions:
 
 [UCF11 - YouTube Action Dataset](https://www.crcv.ucf.edu/data/UCF_YouTube_Action.php)
 
-## License
 
-MIT License
